@@ -50,3 +50,4 @@ Email - mael-mamadou.diagne@epitech.eu
 [Nuxt-url]: https://nuxtjs.org/
 [PostgreSQL]: https://img.shields.io/badge/PostgreSQL-blue?style=for-the-badge&logo=postgresql&logoColor=white
 [PostgreSQL-url]: https://www.postgresql.org/
+
