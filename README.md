@@ -16,7 +16,7 @@ As part of the "Simulated professional work" in the third year at Epitech. I dec
 
 ## Roadmap
 
-- [ ] Milestone 1: Project setup and mockup
+- [x] Milestone 1: Project setup and mockup
 - [ ] Milestone 2: Authentication and management of hot wallets
 - [ ] Milestone 3: Transaction Management
 - [ ] Milestone 4: Payment gateway for customers
