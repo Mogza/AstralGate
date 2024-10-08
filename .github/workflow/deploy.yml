@@ -1,0 +1,51 @@
+name: Deploy and Sync
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Get commit author info
+        id: get_author_info
+        run: |
+          AUTHOR_NAME=$(git log -1 --pretty=format:'%an')
+          AUTHOR_EMAIL=$(git log -1 --pretty=format:'%ae')
+          echo "AUTHOR_NAME=${AUTHOR_NAME}" >> $GITHUB_ENV
+          echo "AUTHOR_EMAIL=${AUTHOR_EMAIL}" >> $GITHUB_ENV
+
+      - name: Install sshpass and SSH client
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y sshpass openssh-client
+
+      - name: Deploy to server
+        env:
+          SSHPASS: ${{ secrets.SSH_PASSWORD }}
+        run: |
+          sshpass -e ssh -o StrictHostKeyChecking=no root@185.157.245.42 << 'EOF'
+            cd /root/Projects/AstralGate
+            docker-compose down
+            git fetch --all
+            git reset --hard origin/main
+            docker-compose up -d
+          EOF
+
+      - name: Git Sync Alternate
+        uses: homerjam/git-sync-alternate@1.0.2
+        with:
+          source_repo: git@github.com:Mogza/AstralGate.git
+          destination_repo: git@github.com:EpitechPromo2027/B-PRO-500-NCY-5-1-professionalwork-mael-mamadou.diagne.git
+          source_branch: main
+          destination_branch: main
+          ssh_private_key: ${{ secrets.SSH_PRIVATE_KEY }}
+          source_ssh_private_key: ${{ secrets.SSH_PRIVATE_KEY }}
+          destination_ssh_private_key: ${{ secrets.SSH_PRIVATE_KEY }}
+
