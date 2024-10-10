@@ -1,6 +1,9 @@
 package main
 
 import (
+	"github.com/Mogza/AstralGate/internal/db"
+	"github.com/Mogza/AstralGate/internal/handler"
+	"github.com/Mogza/AstralGate/internal/routes"
 	"github.com/Mogza/AstralGate/internal/utils"
 	"github.com/gorilla/mux"
 	"github.com/rs/cors"
@@ -9,8 +12,8 @@ import (
 )
 
 func main() {
-	// DB := db.Init()
-	// h := handler.New(DB)
+	DB := db.Init()
+	h := handler.New(DB)
 
 	c := cors.New(cors.Options{
 		AllowedOrigins:   []string{"*"},
@@ -20,6 +23,7 @@ func main() {
 	})
 
 	router := mux.NewRouter()
+	registerRoutes(router, h)
 	han := c.Handler(router)
 
 	go func() {
@@ -29,4 +33,8 @@ func main() {
 	}()
 
 	select {}
+}
+
+func registerRoutes(router *mux.Router, h handler.Handler) {
+	routes.RegisterAuthRoutes(router, h)
 }
