@@ -6,8 +6,10 @@ import (
 	"fmt"
 	"github.com/Mogza/AstralGate/internal/models"
 	"github.com/Mogza/AstralGate/internal/utils"
+	"github.com/gorilla/mux"
 	"gorm.io/gorm"
 	"net/http"
+	"strconv"
 )
 
 type LoginRequest struct {
@@ -125,5 +127,108 @@ func (h Handler) Register(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	_, err = fmt.Fprintf(w, "{\"ok\":\"user successfully created\"}")
+	utils.LogFatal(err, "Fprintf failed")
+}
+
+func (h Handler) GetAllUsers(w http.ResponseWriter, _ *http.Request) {
+	var User []models.User
+	err := h.DB.Order("id").Find(&User).Error
+	if err != nil {
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	err = json.NewEncoder(w).Encode(User)
+	utils.LogFatal(err, "Error while encoding response")
+}
+
+func (h Handler) GetUserMe(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	userID, ok := ctx.Value("user_id").(int)
+	if !ok {
+		http.Error(w, "User ID not found in context", http.StatusUnauthorized)
+		return
+	}
+
+	var user models.User
+	err := h.DB.First(&user, userID).Error
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			http.Error(w, "User not found", http.StatusNotFound)
+		} else {
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		}
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	err = json.NewEncoder(w).Encode(user)
+	utils.LogFatal(err, "Error while encoding response")
+}
+
+func (h Handler) GetUserById(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	id, _ := strconv.Atoi(vars["user_id"])
+
+	var user models.User
+	err := h.DB.First(&user, id).Error
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			http.Error(w, "User not found", http.StatusNotFound)
+		} else {
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		}
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	err = json.NewEncoder(w).Encode(user)
+	utils.LogFatal(err, "Error while encoding response")
+}
+
+func (h Handler) UpdateUser(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	id, _ := strconv.Atoi(vars["user_id"])
+
+	var user models.User
+	err := h.DB.First(&user, id).Error
+	if err != nil {
+		http.Error(w, "User not found", http.StatusNotFound)
+		return
+	}
+
+	err = json.NewDecoder(r.Body).Decode(&user)
+	if err != nil {
+		fmt.Println("No Body")
+	}
+	err = h.DB.Save(&user).Error
+	if err != nil {
+		http.Error(w, "User not updated", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	err = json.NewEncoder(w).Encode(user)
+	utils.LogFatal(err, "Error while encoding response")
+}
+
+func (h Handler) DeleteUser(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	id, _ := strconv.Atoi(vars["user_id"])
+
+	var user models.User
+	err := h.DB.Delete(&user, id).Error
+	if err != nil {
+		http.Error(w, "User not found", http.StatusNotFound)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	_, err = fmt.Fprintf(w, "{\"ok\":\"user successfully deleted\"}")
 	utils.LogFatal(err, "Fprintf failed")
 }

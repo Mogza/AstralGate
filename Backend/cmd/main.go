@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/Mogza/AstralGate/internal/db"
 	"github.com/Mogza/AstralGate/internal/handler"
+	"github.com/Mogza/AstralGate/internal/middleware"
 	"github.com/Mogza/AstralGate/internal/routes"
 	"github.com/Mogza/AstralGate/internal/utils"
 	"github.com/gorilla/mux"
@@ -50,4 +51,13 @@ func main() {
 
 func registerRoutes(router *mux.Router, h handler.Handler) {
 	routes.RegisterAuthRoutes(router, h)
+
+	apiRouter := router.PathPrefix("/api").Subrouter()
+	apiRouter.Use(middleware.JwtMiddleware)
+	routes.RegisterUserRoutes(apiRouter, h)
+
+	adminRouter := router.PathPrefix("/admin").Subrouter()
+	adminRouter.Use(middleware.AdminMiddleware)
+	routes.RegisterUserAdminRoutes(adminRouter, h)
+
 }
