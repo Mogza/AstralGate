@@ -35,7 +35,7 @@ jobs:
             docker-compose down
             git fetch --all
             git reset --hard origin/main
-            docker-compose up -d
+            docker-compose up --build -d
           EOF
 
       - name: Git Sync Alternate
