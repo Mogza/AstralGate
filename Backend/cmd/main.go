@@ -9,16 +9,12 @@ import (
 	"github.com/rs/cors"
 	"log"
 	"net/http"
+	"time"
 )
 
 func main() {
 	DB := db.Init()
 	h := handler.New(DB)
-
-	//client, err := rpc.Dial("tcp", os.Getenv("POLYGON_AMOY_RPC"))
-	//if err != nil {
-	//	log.Fatalf("Failed to connect to the Polygon network: %v", err)
-	//}
 
 	c := cors.New(cors.Options{
 		AllowedOrigins:   []string{"*"},
@@ -31,10 +27,22 @@ func main() {
 	registerRoutes(router, h)
 	han := c.Handler(router)
 
+	pollingTicker := time.NewTicker(30 * time.Second)
+	defer pollingTicker.Stop()
+
 	go func() {
 		log.Println("Listening on port 8080")
 		err := http.ListenAndServe(":8080", han)
 		utils.LogFatal(err, "Error starting server")
+	}()
+
+	go func() {
+		for {
+			select {
+			case <-pollingTicker.C:
+				h.UpdateBalance()
+			}
+		}
 	}()
 
 	select {}

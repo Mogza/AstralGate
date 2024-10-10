@@ -1,9 +1,12 @@
 package utils
 
 import (
+	"context"
 	"fmt"
 	"github.com/ethereum/go-ethereum/accounts/keystore"
+	"github.com/ethereum/go-ethereum/rpc"
 	"log"
+	"math/big"
 	"os"
 	"path/filepath"
 	"strings"
@@ -46,4 +49,25 @@ func CreateWallet(password string) string {
 	}
 
 	return a.Address.Hex()
+}
+
+func GetMaticBalance(address string) float64 {
+	polygonRpc := os.Getenv("POLYGON_AMOY_RPC")
+	client, err := rpc.Dial(polygonRpc)
+	if err != nil {
+		log.Fatalf("Failed to connect to the Polygon network: %v", err)
+	}
+	defer client.Close()
+
+	var balanceHex string
+	err = client.CallContext(context.Background(), &balanceHex, "eth_getBalance", address, "latest")
+	if err != nil {
+		log.Fatalf("Failed to fetch account balance: %v", err)
+	}
+
+	balance, _ := new(big.Int).SetString(balanceHex[2:], 16)
+	maticBalance := new(big.Float).Quo(new(big.Float).SetInt(balance), big.NewFloat(1e18))
+	maticFloat64, _ := maticBalance.Float64()
+
+	return maticFloat64
 }

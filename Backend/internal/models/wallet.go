@@ -1,6 +1,8 @@
 package models
 
-import "time"
+import (
+	"time"
+)
 
 type Wallet struct {
 	Id            int64     `json:"id"`
