@@ -189,6 +189,23 @@ func (h Handler) GetUserById(w http.ResponseWriter, r *http.Request) {
 	utils.LogFatal(err, "Error while encoding response")
 }
 
+func (h Handler) GetUserWallet(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	id, _ := strconv.Atoi(vars["user_id"])
+
+	var wallets []models.Wallet
+	err := h.DB.Where("user_id = ?", id).Find(&wallets).Error
+	if err != nil {
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	err = json.NewEncoder(w).Encode(wallets)
+	utils.LogFatal(err, "Error while encoding response")
+}
+
 func (h Handler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id, _ := strconv.Atoi(vars["user_id"])

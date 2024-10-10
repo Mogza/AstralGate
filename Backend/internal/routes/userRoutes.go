@@ -12,6 +12,7 @@ func RegisterAuthRoutes(router *mux.Router, h handler.Handler) {
 
 func RegisterUserRoutes(router *mux.Router, h handler.Handler) {
 	router.HandleFunc("/users/me", h.GetUserMe).Methods("GET")
+	router.HandleFunc("/users/wallets/{user_id}", h.GetUserWallet).Methods("GET")
 	router.HandleFunc("/users/{user_id}", h.UpdateUser).Methods("PUT")
 }
 
