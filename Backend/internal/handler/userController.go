@@ -2,11 +2,18 @@ package handler
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"github.com/Mogza/AstralGate/internal/models"
 	"github.com/Mogza/AstralGate/internal/utils"
+	"gorm.io/gorm"
 	"net/http"
 )
+
+type LoginRequest struct {
+	Login    string `json:"login"`
+	Password string `json:"password"`
+}
 
 type RegisterRequest struct {
 	Username    string `json:"username"`
@@ -15,6 +22,43 @@ type RegisterRequest struct {
 	Email       string `json:"email"`
 	Password    string `json:"password"`
 	PhoneNumber string `json:"phone_number"`
+}
+
+func (h Handler) Login(w http.ResponseWriter, r *http.Request) {
+	var req LoginRequest
+	err := json.NewDecoder(r.Body).Decode(&req)
+	if err != nil {
+		http.Error(w, "Invalid request payload", http.StatusBadRequest)
+		return
+	}
+
+	var user models.User
+	err = h.DB.Where("username = ?", req.Login).First(&user).Error
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		err = h.DB.Where("email = ?", req.Login).First(&user).Error
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			http.Error(w, "Invalid username/email or password", http.StatusUnauthorized)
+			return
+		}
+	}
+
+	if !utils.CheckPasswordHash(user.PasswordHash, req.Password) {
+		http.Error(w, "Invalid username/email or password", http.StatusUnauthorized)
+		return
+	}
+
+	tokenString, err := utils.GenerateJWT(user.Id, user.Role)
+	if err != nil {
+		http.Error(w, "Failed to generate token", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	err = json.NewEncoder(w).Encode(map[string]string{"token": tokenString})
+	if err != nil {
+		return
+	}
 }
 
 func (h Handler) Register(w http.ResponseWriter, r *http.Request) {
