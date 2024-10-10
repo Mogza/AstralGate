@@ -56,10 +56,12 @@ func registerRoutes(router *mux.Router, h handler.Handler) {
 	apiRouter.Use(middleware.JwtMiddleware)
 	routes.RegisterUserRoutes(apiRouter, h)
 	routes.RegisterWalletRoutes(apiRouter, h)
+	routes.RegisterProductRoutes(apiRouter, h)
 
 	adminRouter := router.PathPrefix("/admin").Subrouter()
 	adminRouter.Use(middleware.AdminMiddleware)
 	routes.RegisterUserAdminRoutes(adminRouter, h)
 	routes.RegisterWalletAdminRoutes(adminRouter, h)
+	routes.RegisterProductAdminRoutes(adminRouter, h)
 
 }

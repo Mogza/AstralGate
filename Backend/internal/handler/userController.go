@@ -189,7 +189,49 @@ func (h Handler) GetUserById(w http.ResponseWriter, r *http.Request) {
 	utils.LogFatal(err, "Error while encoding response")
 }
 
-func (h Handler) GetUserWallet(w http.ResponseWriter, r *http.Request) {
+func (h Handler) GetUserWalletMe(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	userID, ok := ctx.Value("user_id").(int)
+	if !ok {
+		http.Error(w, "User ID not found in context", http.StatusUnauthorized)
+		return
+	}
+
+	var wallets []models.Wallet
+	err := h.DB.Where("user_id = ?", userID).Find(&wallets).Error
+	if err != nil {
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	err = json.NewEncoder(w).Encode(wallets)
+	utils.LogFatal(err, "Error while encoding response")
+}
+
+func (h Handler) GetUserProductMe(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	userID, ok := ctx.Value("user_id").(int)
+	if !ok {
+		http.Error(w, "User ID not found in context", http.StatusUnauthorized)
+		return
+	}
+
+	var products []models.Products
+	err := h.DB.Where("user_id = ?", userID).Find(&products).Error
+	if err != nil {
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	err = json.NewEncoder(w).Encode(products)
+	utils.LogFatal(err, "Error while encoding response")
+}
+
+func (h Handler) GetUserWalletById(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id, _ := strconv.Atoi(vars["user_id"])
 
@@ -203,6 +245,23 @@ func (h Handler) GetUserWallet(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	err = json.NewEncoder(w).Encode(wallets)
+	utils.LogFatal(err, "Error while encoding response")
+}
+
+func (h Handler) GetUserProductById(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	id, _ := strconv.Atoi(vars["user_id"])
+
+	var products []models.Products
+	err := h.DB.Where("user_id = ?", id).Find(&products).Error
+	if err != nil {
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	err = json.NewEncoder(w).Encode(products)
 	utils.LogFatal(err, "Error while encoding response")
 }
 
