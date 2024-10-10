@@ -35,6 +35,9 @@ jobs:
             docker-compose down
             git fetch --all
             git reset --hard origin/main
+            cd /root/Projects/AstralGate/Backend
+            mkdir keystores
+            cd /root/Projects/AstralGate
             docker-compose up --build -d
           EOF
 

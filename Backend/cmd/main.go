@@ -15,6 +15,11 @@ func main() {
 	DB := db.Init()
 	h := handler.New(DB)
 
+	// client, err := rpc.Dial("tcp", os.Getenv("POLYGON_AMOY_RPC"))
+	// if err != nil {
+	// 	log.Fatalf("Failed to connect to the Polygon network: %v", err)
+	// }
+
 	c := cors.New(cors.Options{
 		AllowedOrigins:   []string{"*"},
 		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE"},

@@ -27,6 +27,8 @@ services:
       - app-network
     depends_on:
       - db
+    volumes:
+      - ${PATH_TO_KEYSTORES}:/app/keystores
 
   frontend:
     build:

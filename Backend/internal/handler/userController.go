@@ -108,6 +108,20 @@ func (h Handler) Register(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	walletAddress := utils.CreateWallet(req.Password)
+
+	wallet := models.Wallet{
+		UserId:        user.Id,
+		CryptoAddress: walletAddress,
+		Currency:      "POL",
+	}
+
+	err = h.DB.Create(&wallet).Error
+	if err != nil {
+		http.Error(w, "Failed to wallet for the user", http.StatusInternalServerError)
+		return
+	}
+
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	_, err = fmt.Fprintf(w, "{\"ok\":\"user successfully created\"}")
