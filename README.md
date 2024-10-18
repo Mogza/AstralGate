@@ -1,7 +1,4 @@
 <p align="center"> [Work In Progress]
-<div align="center"> 
-<img src="https://github.com/user-attachments/assets/4ab1c526-5466-4af6-9753-91f52535dfaa" alt="AstralGateLogo" width="300" />
-
 <p align="center"> Welcome to AstralGate, a cryptocurrency payment gateway. </p> </div>
 
 ## About The Project
