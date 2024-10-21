@@ -14,9 +14,11 @@ import (
 )
 
 func main() {
+	// Database  & Handler init
 	DB := db.Init()
 	h := handler.New(DB)
 
+	// CORS Setup
 	c := cors.New(cors.Options{
 		AllowedOrigins:   []string{"*"},
 		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE"},
@@ -24,6 +26,7 @@ func main() {
 		AllowCredentials: true,
 	})
 
+	// Router creation
 	router := mux.NewRouter()
 	registerRoutes(router, h)
 	han := c.Handler(router)
@@ -31,12 +34,14 @@ func main() {
 	pollingTicker := time.NewTicker(30 * time.Second)
 	defer pollingTicker.Stop()
 
+	// Goroutine : Listen and Serve
 	go func() {
 		log.Println("Listening on port 8080")
 		err := http.ListenAndServe(":8080", han)
 		utils.LogFatal(err, "Error starting server")
 	}()
 
+	// Goroutine : Polling functions
 	go func() {
 		for {
 			select {
@@ -50,14 +55,17 @@ func main() {
 }
 
 func registerRoutes(router *mux.Router, h handler.Handler) {
+	// Login router setup
 	routes.RegisterAuthRoutes(router, h)
 
+	// Api router setup
 	apiRouter := router.PathPrefix("/api").Subrouter()
 	apiRouter.Use(middleware.JwtMiddleware)
 	routes.RegisterUserRoutes(apiRouter, h)
 	routes.RegisterWalletRoutes(apiRouter, h)
 	routes.RegisterProductRoutes(apiRouter, h)
 
+	// Admin router setup
 	adminRouter := router.PathPrefix("/admin").Subrouter()
 	adminRouter.Use(middleware.AdminMiddleware)
 	routes.RegisterUserAdminRoutes(adminRouter, h)

@@ -13,6 +13,7 @@ import (
 )
 
 func (h Handler) GetAllWallets(w http.ResponseWriter, _ *http.Request) {
+	// Retrieve all wallets
 	var wallet []models.Wallet
 	err := h.DB.Order("id").Find(&wallet).Error
 	if err != nil {
@@ -29,6 +30,7 @@ func (h Handler) GetWalletById(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id, _ := strconv.Atoi(vars["wallet_id"])
 
+	// Retrieve expected wallet
 	var wallet models.Wallet
 	err := h.DB.First(&wallet, id).Error
 	if err != nil {
@@ -50,6 +52,7 @@ func (h Handler) UpdateWallet(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id, _ := strconv.Atoi(vars["wallet_id"])
 
+	// Retrieve expected wallet
 	var wallet models.Wallet
 	err := h.DB.First(&wallet, id).Error
 	if err != nil {
@@ -57,10 +60,13 @@ func (h Handler) UpdateWallet(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Decode request body
 	err = json.NewDecoder(r.Body).Decode(&wallet)
 	if err != nil {
 		fmt.Println("No Body")
 	}
+
+	// Update wallet in database
 	err = h.DB.Save(&wallet).Error
 	if err != nil {
 		http.Error(w, "Wallet not updated", http.StatusInternalServerError)
@@ -74,6 +80,7 @@ func (h Handler) UpdateWallet(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h Handler) UpdateBalance() {
+	// Retrieve all wallets where currency == POL
 	var wallets []models.Wallet
 	err := h.DB.Where("currency = ?", "POL").Find(&wallets).Error
 	if err != nil {
@@ -86,6 +93,7 @@ func (h Handler) UpdateBalance() {
 		return
 	}
 
+	// Update wallets balance
 	for _, wallet := range wallets {
 		newBalance := utils.GetMaticBalance(wallet.CryptoAddress)
 		if newBalance != wallet.Balance {
@@ -103,6 +111,7 @@ func (h Handler) DeleteWallet(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id, _ := strconv.Atoi(vars["wallet_id"])
 
+	// Delete expected wallet
 	var wallet models.Wallet
 	err := h.DB.Delete(&wallet, id).Error
 	if err != nil {

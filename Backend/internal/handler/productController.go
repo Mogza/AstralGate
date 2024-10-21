@@ -12,6 +12,7 @@ import (
 	"strconv"
 )
 
+// ProductBodyCreation : Requested body for product creation
 type ProductBodyCreation struct {
 	Title       string  `json:"title"`
 	Description string  `json:"description"`
@@ -19,6 +20,7 @@ type ProductBodyCreation struct {
 }
 
 func (h Handler) GetAllProducts(w http.ResponseWriter, _ *http.Request) {
+	// Retrieve all products
 	var products []models.Products
 	err := h.DB.Order("id").Find(&products).Error
 	if err != nil {
@@ -35,6 +37,7 @@ func (h Handler) GetProductById(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id, _ := strconv.Atoi(vars["product_id"])
 
+	// Retrieve expected product
 	var product models.Products
 	err := h.DB.First(&product, id).Error
 	if err != nil {
@@ -60,6 +63,7 @@ func (h Handler) CreateProducts(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Decode body request
 	var req ProductBodyCreation
 	err := json.NewDecoder(r.Body).Decode(&req)
 	if err != nil {
@@ -67,6 +71,7 @@ func (h Handler) CreateProducts(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// See if products already exists (by title)
 	var existingProduct models.Products
 	err = h.DB.Where("title = ?", req.Title).First(&existingProduct).Error
 	if err == nil {
@@ -81,6 +86,7 @@ func (h Handler) CreateProducts(w http.ResponseWriter, r *http.Request) {
 		UsdPrice:    req.UsdPrice,
 	}
 
+	// Create Product
 	err = h.DB.Create(&product).Error
 	if err != nil {
 		http.Error(w, "Failed to product user", http.StatusInternalServerError)
@@ -97,6 +103,7 @@ func (h Handler) UpdateProduct(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id, _ := strconv.Atoi(vars["product_id"])
 
+	// Retrieve expected product
 	var product models.Products
 	err := h.DB.First(&product, id).Error
 	if err != nil {
@@ -104,10 +111,13 @@ func (h Handler) UpdateProduct(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Decode body request
 	err = json.NewDecoder(r.Body).Decode(&product)
 	if err != nil {
 		fmt.Println("No Body")
 	}
+
+	// Update product in database
 	err = h.DB.Save(&product).Error
 	if err != nil {
 		http.Error(w, "Product not updated", http.StatusInternalServerError)
@@ -124,6 +134,7 @@ func (h Handler) DeleteProduct(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id, _ := strconv.Atoi(vars["product_id"])
 
+	// Delete expected product
 	var product models.Products
 	err := h.DB.Delete(&product, id).Error
 	if err != nil {

@@ -13,6 +13,7 @@ import (
 )
 
 func CreateWallet(password string) string {
+	// Create keystore
 	keyStorePath := "/app/keystores"
 	key := keystore.NewKeyStore(keyStorePath, keystore.StandardScryptN, keystore.StandardScryptP)
 
@@ -21,6 +22,7 @@ func CreateWallet(password string) string {
 		log.Fatal(err)
 	}
 
+	// Change default keystore name to new one
 	filenameAddress := strings.ToLower(a.Address.String()[2:])
 	newFilename := fmt.Sprintf("%s.keystore", a.Address.Hex())
 
@@ -52,6 +54,7 @@ func CreateWallet(password string) string {
 }
 
 func GetMaticBalance(address string) float64 {
+	// Connect to polygon rpc
 	polygonRpc := os.Getenv("POLYGON_AMOY_RPC")
 	client, err := rpc.Dial(polygonRpc)
 	if err != nil {
@@ -59,12 +62,14 @@ func GetMaticBalance(address string) float64 {
 	}
 	defer client.Close()
 
+	// Retrieve eth_balance
 	var balanceHex string
 	err = client.CallContext(context.Background(), &balanceHex, "eth_getBalance", address, "latest")
 	if err != nil {
 		log.Fatalf("Failed to fetch account balance: %v", err)
 	}
 
+	// Convert balance Hex to float
 	balance, _ := new(big.Int).SetString(balanceHex[2:], 16)
 	maticBalance := new(big.Float).Quo(new(big.Float).SetInt(balance), big.NewFloat(1e18))
 	maticFloat64, _ := maticBalance.Float64()
