@@ -1,142 +1,109 @@
 <template>
   <div>
-    <div class="centered-text">
+    <!-- Header placed outside the main content -->
+    <Header />
 
-      <p>
-        Êtes-vous prêts à accepter les paiements en<br />
-        <span class="gradient-word">crypto-monnaies</span> à n'importe quel endroit du <span class="gradient-word">globe</span> ?
-      </p>
+    <!-- Main Content -->
+    <div class="relative text-white min-h-screen pt-20">
+      <!-- EtherCoin -->
+      <div class="absolute top-[30%] left-[45%] transform -translate-x-1/2 -translate-y-1/2 opacity-100 z-0">
+        <img src="~assets/img/EtherCoin.png" alt="EtherCoin" class="max-w-[10%] md:max-w-[10%]" />
+      </div>
+      <!-- EtherCoin 2 -->
+      <div class="absolute top-[40%] left-[87%] transform -translate-x-1/2 -translate-y-1/2 opacity-100 z-0">
+        <img src="~assets/img/EtherCoin.png" alt="EtherCoin" class="max-w-[110%] md:max-w-[110%] transform scale-x-[-1]" />
+      </div>
+      <!-- EtherCoin 3 -->
+      <div class="absolute top-[0%] left-[65%] transform -translate-x-1/2 -translate-y-1/2 opacity-100 z-0">
+        <img src="~assets/img/EtherCoin.png" alt="EtherCoin" class="max-w-[200%] md:max-w-[60%]" />
+      </div>
+
+      <!-- Centered Text -->
+      <div class="text-center font-extrabold text-5xl md:text-5xl sm:text-4xl mt-32 sm:mt-40 md:mt-52 mx-auto max-w-md md:max-w-7xl relative z-10">
+        <p>
+          Êtes-vous prêts à accepter les paiements en<br />
+          <span class="text-transparent bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text">crypto-monnaies</span>
+          à n'importe quel endroit du <span class="text-transparent bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text">globe</span> ?
+        </p>
+      </div>
+
+      <!-- Description Text -->
+      <div class="text-center font-semibold text-xl md:text-2xl sm:text-base opacity-70 mt-8 mx-auto max-w-7xl relative z-10">
+        <p>
+          Développez votre commerce en toute transparence avec des transactions<br />
+          rapides, sécurisées et mondiales de crypto-monnaies grâce à AstralGate.
+        </p>
+      </div>
+
+      <!-- Gradient Button -->
+      <div class="flex justify-center mt-10 relative z-10">
+        <button class="flex items-center space-x-2 px-6 py-3 text-xl font-medium rounded-full bg-gradient-to-r from-purple-400 to-blue-400 hover:from-purple-500 hover:to-blue-500 transition-shadow shadow-lg">
+          <span>COMMENCER GRATUITEMENT</span>
+          <img src="~assets/icons/Right.svg" alt="Right-Icon" class="w-8 h-8" />
+        </button>
+      </div>
+
+      <!-- Additional Text -->
+      <div class="text-center font-semibold text-lg md:text-base sm:text-base opacity-70 mt-2 mx-auto max-w-7xl relative z-10">
+        <p>
+          Aucune carte de crédit n'est requise
+        </p>
+      </div>
+
+      <!-- Subscription Cards -->
+      <div class="flex justify-center mt-20 space-x-6 px-4 pt-60 relative z-10">
+        <!-- Start Card -->
+        <div class="w-72 border-2 border-purple-400 text-white p-6 rounded-lg shadow-lg">
+          <h3 class="text-2xl font-extrabold mb-4 text-center">Free</h3>
+          <h3 class="text-2xl font-extrabold mb-4 text-center text-transparent bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text">Starter</h3>
+          <p class="mb-7 pt-5">
+            - ...<br />
+            - ...<br />
+            - ...<br />
+            - ...<br />
+            - ...<br />
+          </p>
+          <button class="w-full py-3 text-xl font-medium rounded-full bg-gradient-to-r from-purple-400 to-blue-400 hover:from-purple-500 hover:to-blue-500 transition-shadow shadow-lg">
+            Start Now
+          </button>
+        </div>
+
+        <!-- 25$ Card (Filled Style) -->
+        <div class="w-72 bg-gradient-to-r from-purple-400 to-blue-400 text-white p-6 rounded-lg shadow-lg">
+          <h3 class="text-2xl font-extrabold mb-4 text-center">25$</h3>
+          <h3 class="text-2xl font-extrabold mb-4 text-center text-black">Business</h3>
+          <p class="mb-7 pt-5">
+            - ...<br />
+            - ...<br />
+            - ...<br />
+            - ...<br />
+            - ...<br />
+          </p>
+          <button class="w-full py-3 text-xl font-medium rounded-full bg-white text-purple-400 hover:bg-gray-200 transition-all">
+            Order Now
+          </button>
+        </div>
+
+        <!-- 250$ Card (Outlined Style) -->
+        <div class="w-72 border-2 border-purple-400 text-white p-6 rounded-lg shadow-lg">
+          <h3 class="text-2xl font-extrabold mb-4 text-center">250$</h3>
+          <h3 class="text-2xl font-extrabold mb-4 text-center text-transparent bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text">Lifetime Access</h3>
+          <p class="mb-7 pt-5">
+            - ...<br />
+            - ...<br />
+            - ...<br />
+            - ...<br />
+            - ...<br />
+          </p>
+          <button class="w-full py-3 text-xl font-medium rounded-full bg-gradient-to-r from-purple-400 to-blue-400 hover:from-purple-500 hover:to-blue-500 transition-shadow shadow-lg">
+            Order Now
+          </button>
+        </div>
+      </div>
     </div>
-    <div class="description-text">
-      <p>
-        Développez votre commerce en toute transparence avec des transactions<br />
-        rapides, sécurisées et mondiales de crypto-monnaies grâce à AstralGate.
-      </p>
-    </div>
-    <div>
-      <button class="gradient-button">
-        <span>COMMENCER GRATUITEMENT</span>
-        <img src="~assets/icons/Right.svg" alt="Right-Icon" class="right-icon" />
-      </button>
-    </div>
-    <img src="~assets/img/EtherCoin.png" alt="EtherCoin" class="ether_coin1" />
-    <img src="~assets/img/EtherCoin.png" alt="EtherCoin" class="ether_coin2" />
-    <img src="~assets/img/EtherCoin.png" alt="EtherCoin" class="ether_coin3" />
   </div>
 </template>
 
-
 <script setup lang="ts">
+import Header from './components/Header.vue'
 </script>
-
-<style scoped>
-.centered-text {
-  display: inline-block;
-  border-radius: 10px;
-  position: relative;
-  left: 50%;
-  transform: translateX(-50%);
-  top: 250px;
-  text-align: center;
-  font-size: 3.3rem;
-  font-weight: 900;
-  color: white;
-  z-index: 1;
-}
-
-.description-text {
-  display: inline-block;
-  border-radius: 10px;
-  position: relative;
-  left: 50%;
-  transform: translateX(-50%);
-  top: 190px;
-  text-align: center;
-  font-size: 1.8rem;
-  font-weight: 700;
-  color: white;
-  opacity: 70%;
-  z-index: 1;
-}
-
-.gradient-word {
-  background: linear-gradient(160deg, #C252E1, #6ECBF5);
-  background-clip: text;
-  -webkit-background-clip: text;
-  color: transparent;
-}
-
-.gradient-button {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 15px 25px;
-  font-size: 1.5rem;
-  font-weight: 500;
-  position: relative;
-  left: 50%;
-  transform: translateX(-50%);
-  top: 250px;
-  color: white;
-  border: none;
-  border-radius: 100px;
-  cursor: pointer;
-  background: transparent;
-}
-
-.right-icon {
-  margin-left: 10px;
-  width: 33px;
-  height: 33px;
-}
-
-.gradient-button:before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  border: none;
-  border-radius: 100px;
-  pointer-events: none;
-  box-shadow: inset 0 0 0 2px white;
-  transition: box-shadow 0.1s ease-in-out;
-}
-
-.gradient-button:hover:before {
-  box-shadow: inset 0 0 0 0; /* Remove the inner border on hover */
-}
-
-.gradient-button:hover {
-  background: linear-gradient(160deg, #C252E1, #6ECBF5);
-  border: none;
-}
-
-.ether_coin1 {
-  display: flex;
-  width: 150px;
-  height: 150px;
-  margin-right: 10px;
-  transform: translateY(-70px) translateX(225px);
-  z-index: 0;
-}
-
-.ether_coin2 {
-  display: flex;
-  width: 300px;
-  height: 300px;
-  margin-right: 10px;
-  transform: translateY(-715px) translateX(990px);
-  z-index: 0;
-}
-
-.ether_coin3 {
-  display: flex;
-  width: 350px;
-  height: 350px;
-  margin-right: 10px;
-  transform: translateY(-425px) translateX(1525px) scaleX(-1);
-  z-index: 0;
-}
-</style>
