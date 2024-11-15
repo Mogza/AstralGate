@@ -14,6 +14,7 @@ func RegisterUserRoutes(router *mux.Router, h handler.Handler) {
 	router.HandleFunc("/users/me", h.GetUserMe).Methods("GET")
 	router.HandleFunc("/users/wallets/me", h.GetUserWalletMe).Methods("GET")
 	router.HandleFunc("/users/products/me", h.GetUserProductMe).Methods("GET")
+	router.HandleFunc("/users/transactions/me", h.GetUserTransactionMe).Methods("GET")
 	router.HandleFunc("/users/{user_id}", h.UpdateUser).Methods("PUT")
 }
 

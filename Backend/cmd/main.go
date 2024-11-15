@@ -64,6 +64,7 @@ func registerRoutes(router *mux.Router, h handler.Handler) {
 	routes.RegisterUserRoutes(apiRouter, h)
 	routes.RegisterWalletRoutes(apiRouter, h)
 	routes.RegisterProductRoutes(apiRouter, h)
+	routes.RegisterTransactionRoutes(apiRouter, h)
 
 	// Admin router setup
 	adminRouter := router.PathPrefix("/admin").Subrouter()
@@ -71,5 +72,6 @@ func registerRoutes(router *mux.Router, h handler.Handler) {
 	routes.RegisterUserAdminRoutes(adminRouter, h)
 	routes.RegisterWalletAdminRoutes(adminRouter, h)
 	routes.RegisterProductAdminRoutes(adminRouter, h)
+	routes.RegisterTransactionAdminRoutes(adminRouter, h)
 
 }

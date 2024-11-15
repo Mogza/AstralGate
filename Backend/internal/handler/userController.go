@@ -248,6 +248,28 @@ func (h Handler) GetUserProductMe(w http.ResponseWriter, r *http.Request) {
 	utils.LogFatal(err, "Error while encoding response")
 }
 
+func (h Handler) GetUserTransactionMe(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	userID, ok := ctx.Value("user_id").(int)
+	if !ok {
+		http.Error(w, "User ID not found in context", http.StatusUnauthorized)
+		return
+	}
+
+	// Retrieve user transactions
+	var transactions []models.Transaction
+	err := h.DB.Where("user_id = ?", userID).Find(&transactions).Error
+	if err != nil {
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	err = json.NewEncoder(w).Encode(transactions)
+	utils.LogFatal(err, "Error while encoding response")
+}
+
 func (h Handler) GetUserWalletById(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id, _ := strconv.Atoi(vars["user_id"])

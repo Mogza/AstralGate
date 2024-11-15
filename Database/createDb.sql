@@ -37,7 +37,7 @@ CREATE TABLE transactions (
     id SERIAL PRIMARY KEY,
     wallet_id INTEGER NOT NULL,
     product_id INTEGER NOT NULL,
-    unique_address VARCHAR(255) NOT NULL,
+    client_address VARCHAR(255) NOT NULL,
     amount DECIMAL(20, 8) NOT NULL,
     currency VARCHAR(50) NOT NULL,
     status VARCHAR(50) NOT NULL,
