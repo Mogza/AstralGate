@@ -48,6 +48,48 @@ func (h Handler) GetTransactionById(w http.ResponseWriter, r *http.Request) {
 	utils.LogFatal(err, "Error while encoding response")
 }
 
+func (h Handler) CreatePOLTransactions(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	userID, ok := ctx.Value("user_id").(int)
+	if !ok {
+		http.Error(w, "User ID not found in context", http.StatusUnauthorized)
+		return
+	}
+
+	// Decode body request
+	var newTx models.Transaction
+	err := json.NewDecoder(r.Body).Decode(&newTx)
+	if err != nil {
+		http.Error(w, "Invalid request payload", http.StatusBadRequest)
+		return
+	}
+
+	var wallets models.Wallet
+	err = h.DB.Where("user_id = ? AND currency = ?", userID, "POL").Find(&wallets).Error
+	if err != nil {
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+
+	newTx.WalletId = wallets.Id
+	newTx.Currency = "POL"
+	newTx.Status = "pending"
+	// TODO: call to extern API to convert usd price to POL price
+	newTx.Amount = 1
+
+	// Create Transaction
+	err = h.DB.Create(&newTx).Error
+	if err != nil {
+		http.Error(w, "Failed to create transaction", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	_, err = fmt.Fprintln(w, "{\"merchant_address\": ", wallets.CryptoAddress, "}")
+	utils.LogFatal(err, "Fprintf failed")
+}
+
 func (h Handler) UpdateTransaction(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id, _ := strconv.Atoi(vars["transaction_id"])
