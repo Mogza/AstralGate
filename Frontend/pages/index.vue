@@ -1,6 +1,6 @@
 <template>
-  <div>
-    <!-- Header placed outside the main content -->
+  <div class="bg-[#131419]">
+    <!-- Header -->
     <Header />
 
     <!-- Main Content -->
@@ -105,5 +105,5 @@
 </template>
 
 <script setup lang="ts">
-import Header from './components/Header.vue'
+import Header from '../components/Header.vue'
 </script>
