@@ -19,7 +19,7 @@
           <table class="table-auto w-full border-collapse border border-gray-300">
             <thead>
             <tr class="bg-gradient-to-r from-purple-400 to-blue-400 text-white">
-              <th class="border border-gray-300 px-4 py-2">User Id</th>
+              <th class="border border-gray-300 px-4 py-2">User Name</th>
               <th class="border border-gray-300 px-4 py-2">Title</th>
               <th class="border border-gray-300 px-4 py-2">Description</th>
               <th class="border border-gray-300 px-4 py-2">Price</th>
@@ -31,7 +31,7 @@
                 :key="product.id"
                 class="text-center odd:bg-gray-100 even:bg-gray-200"
             >
-              <td class="border border-gray-300 px-4 py-2">{{ product.user_id }}</td>
+              <td class="border border-gray-300 px-4 py-2">{{ product.user_name }}</td>
               <td class="border border-gray-300 px-4 py-2">{{ product.title }}</td>
               <td class="border border-gray-300 px-4 py-2">{{ product.description }}</td>
               <td class="border border-gray-300 px-4 py-2">{{ product.usd_price }}$</td>
@@ -52,6 +52,7 @@ import axios from "axios";
 interface Product {
   id: number;
   user_id: number;
+  user_name: string;
   title: string;
   description: string;
   usd_price: number;
@@ -69,6 +70,19 @@ async function fetchUsers() {
       },
     });
     products.value = response.data;
+
+    for (const product of products.value as Product[]) {
+      try {
+        const userResponse = await axios.get(`http://185.157.245.42:8080/admin/users/${product.user_id}`, {
+          headers: {
+            Authorization: `Bearer ${BEARER_TOKEN}`,
+          },
+        });
+        product.user_name = userResponse.data.username;
+      } catch (userError) {
+        console.error(`Error fetching user data for user_id ${product.user_id}:`, userError);
+      }
+    }
   } catch (error) {
     console.error("Error fetching users:", error);
   }

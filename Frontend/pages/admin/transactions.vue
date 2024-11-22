@@ -20,7 +20,7 @@
             <thead>
             <tr class="bg-gradient-to-r from-purple-400 to-blue-400 text-white">
               <th class="border border-gray-300 px-4 py-2">Wallet Id</th>
-              <th class="border border-gray-300 px-4 py-2">Product Id</th>
+              <th class="border border-gray-300 px-4 py-2">Product Title</th>
               <th class="border border-gray-300 px-4 py-2">Client Address</th>
               <th class="border border-gray-300 px-4 py-2">Amount</th>
               <th class="border border-gray-300 px-4 py-2">Currency</th>
@@ -34,7 +34,7 @@
                 class="text-center odd:bg-gray-100 even:bg-gray-200"
             >
               <td class="border border-gray-300 px-4 py-2">{{ transaction.wallet_id }}</td>
-              <td class="border border-gray-300 px-4 py-2">{{ transaction.product_id }}</td>
+              <td class="border border-gray-300 px-4 py-2">{{ transaction.product_title }}</td>
               <td class="border border-gray-300 px-4 py-2">{{ transaction.client_address }}</td>
               <td class="border border-gray-300 px-4 py-2">{{ transaction.amount }}</td>
               <td class="border border-gray-300 px-4 py-2">{{ transaction.currency }}</td>
@@ -57,6 +57,7 @@ interface Transaction {
   id: number;
   wallet_id: number;
   product_id: number;
+  product_title: string;
   client_address: string;
   amount: number;
   currency: string;
@@ -75,6 +76,19 @@ async function fetchUsers() {
       },
     });
     transactions.value = response.data;
+
+    for (const transaction of transactions.value as Transaction[]) {
+      try {
+        const productResponse = await axios.get(`http://185.157.245.42:8080/api/products/${transaction.product_id}`, {
+          headers: {
+            Authorization: `Bearer ${BEARER_TOKEN}`,
+          },
+        });
+        transaction.product_title = productResponse.data.title;
+      } catch (userError) {
+        console.error(`Error fetching user data for product_id ${transaction.product_id}:`, userError);
+      }
+    }
   } catch (error) {
     console.error("Error fetching users:", error);
   }
