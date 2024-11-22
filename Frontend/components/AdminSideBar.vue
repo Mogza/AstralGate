@@ -16,11 +16,20 @@
 </template>
 
 <script setup lang="ts">
-import { ref, defineEmits } from "vue";
+import { defineProps, defineEmits } from "vue";
 
 import UsersIcon from "../assets/icons/Users.svg";
 import ProductsIcon from "../assets/icons/Products.svg";
 import TransactionsIcon from "../assets/icons/Transactions.svg";
+
+const props = defineProps({
+  currentTab: {
+    type: String,
+    required: true,
+  },
+});
+
+const emits = defineEmits(["tab-changed"]);
 
 const tabs = ["Users", "Products", "Transactions"];
 const tabIcons: Record<string, string> = {
@@ -29,15 +38,7 @@ const tabIcons: Record<string, string> = {
   Transactions: TransactionsIcon,
 };
 
-const currentTab = ref(tabs[0]);
-
-const emits = defineEmits(['tab-changed']);
-
 function changeTab(tab: string) {
-  currentTab.value = tab;
-  emits('tab-changed', tab);
+  emits("tab-changed", tab);
 }
 </script>
-
-<style scoped>
-</style>

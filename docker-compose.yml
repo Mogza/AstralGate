@@ -36,6 +36,8 @@ services:
       context: ./Frontend
       dockerfile: Dockerfile
     container_name: astral_gate_frontend
+    environment:
+      NUXT_PUBLIC_ADMIN_TOKEN: ${NUXT_PUBLIC_ADMIN_TOKEN}
     ports:
       - "3000:3000"
     networks:

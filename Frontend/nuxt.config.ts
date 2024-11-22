@@ -1,4 +1,9 @@
 export default defineNuxtConfig({
+  runtimeConfig: {
+    public: {
+      adminToken: process.env.NUXT_PUBLIC_ADMIN_TOKEN || '',
+    },
+  },
   app: {
     head: {
       title: 'AstralGate',
