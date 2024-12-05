@@ -34,6 +34,15 @@ type UsersOnboardedReturn struct {
 	Count int64 `json:"count"`
 }
 
+type ItemSoldData struct {
+	Name   string `json:"name"`
+	Number int64  `json:"number"`
+}
+
+type ItemSoldReturn struct {
+	Data []ItemSoldData `json:"data"`
+}
+
 func (h Handler) GetUserRevenue(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, ok := ctx.Value("user_id").(int)
@@ -129,5 +138,52 @@ func (h Handler) GetUsersOnboarded(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	err = json.NewEncoder(w).Encode(usersOnboarded)
+	utils.LogFatal(err, "Error while encoding response")
+}
+
+func (h Handler) GetItemsSold(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	userID, ok := ctx.Value("user_id").(int)
+	if !ok {
+		http.Error(w, "User ID not found in context", http.StatusUnauthorized)
+		return
+	}
+
+	// Retrieve user products
+	var products []models.Products
+	err := h.DB.Where("user_id = ?", userID).Find(&products).Error
+	if err != nil {
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+	}
+
+	// Retrieve expected wallet
+	var wallet models.Wallet
+	err = h.DB.Where("user_id = ?", userID).First(&wallet).Error
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			http.Error(w, "Wallet not found", http.StatusNotFound)
+		} else {
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		}
+		return
+	}
+
+	var itemReturn ItemSoldReturn
+	for _, item := range products {
+		var count int64
+		err = h.DB.Model(&models.Transaction{}).Where("product_id = ? AND status = ?", item.Id, "paid").Count(&count).Error
+		if err != nil {
+			break
+		}
+
+		itemReturn.Data = append(itemReturn.Data, ItemSoldData{
+			Name:   item.Title,
+			Number: count,
+		})
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	err = json.NewEncoder(w).Encode(itemReturn)
 	utils.LogFatal(err, "Error while encoding response")
 }
