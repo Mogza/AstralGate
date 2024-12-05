@@ -12,6 +12,7 @@ import (
 	"net/http"
 	"os"
 	"strconv"
+	"time"
 )
 
 type AlchemyPriceData struct {
@@ -41,6 +42,15 @@ type ItemSoldData struct {
 
 type ItemSoldReturn struct {
 	Data []ItemSoldData `json:"data"`
+}
+
+type ActivityData struct {
+	Period string `json:"period"`
+	Number int64  `json:"number"`
+}
+
+type ActivityReturn struct {
+	Data []ActivityData `json:"data"`
 }
 
 func (h Handler) GetUserRevenue(w http.ResponseWriter, r *http.Request) {
@@ -185,5 +195,59 @@ func (h Handler) GetItemsSold(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	err = json.NewEncoder(w).Encode(itemReturn)
+	utils.LogFatal(err, "Error while encoding response")
+}
+
+func (h Handler) GetActivity(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	userID, ok := ctx.Value("user_id").(int)
+	if !ok {
+		http.Error(w, "User ID not found in context", http.StatusUnauthorized)
+		return
+	}
+
+	// Retrieve expected wallet
+	var wallet models.Wallet
+	err := h.DB.Where("user_id = ?", userID).First(&wallet).Error
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			http.Error(w, "Wallet not found", http.StatusNotFound)
+		} else {
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		}
+		return
+	}
+
+	var timePeriod []time.Time
+	daysToAnalyze := 7
+	now := time.Now()
+
+	for i := 0; i < daysToAnalyze; i++ {
+		timePeriod = append(timePeriod, now.AddDate(0, 0, -i))
+	}
+
+	var activityReturn ActivityReturn
+	for _, period := range timePeriod {
+		startOfDay := period.Truncate(24 * time.Hour)
+		endOfDay := startOfDay.Add(24 * time.Hour)
+
+		var count int64
+		err = h.DB.Model(&models.Transaction{}).
+			Where("wallet_id = ? AND status = ? AND updated_at >= ? AND updated_at < ?", wallet.Id, "paid", startOfDay, endOfDay).
+			Count(&count).Error
+
+		if err != nil {
+			break
+		}
+
+		activityReturn.Data = append(activityReturn.Data, ActivityData{
+			Period: period.Format("02/01"),
+			Number: count,
+		})
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	err = json.NewEncoder(w).Encode(activityReturn)
 	utils.LogFatal(err, "Error while encoding response")
 }
