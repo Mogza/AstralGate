@@ -15,7 +15,7 @@
       <!-- ContentBox -->
       <div class="flex-1 flex mt-14 ml-24">
         <div
-            class="w-11/12 h-5/6 rounded-lg shadow-lg bg-gradient-to-r from-purple-400 to-blue-400 p-2 opacity-100"
+            class="w-11/12 h-5/6 rounded-lg shadow-lg bg-gradient-to-r from-purple-400/20 to-blue-400/20 p-2 opacity-100"
         >
           <div class="w-full h-full bg-[#f4f3f2] rounded-lg p-4 overflow-y-auto">
             <table class="table-auto w-full border-collapse border border-gray-300">
