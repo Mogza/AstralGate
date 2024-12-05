@@ -1,7 +1,7 @@
 <template>
   <div class="bg-[#131419]">
     <!-- Header -->
-    <Header />
+    <Header @register="handleRegister" />
 
     <!-- Main Content -->
     <div class="relative text-white min-h-screen pt-20">
@@ -37,7 +37,7 @@
 
       <!-- Gradient Button -->
       <div class="flex justify-center mt-10 relative z-10">
-        <button class="flex items-center space-x-2 px-6 py-3 text-xl font-medium rounded-full bg-gradient-to-r from-purple-400 to-blue-400 hover:from-purple-500 hover:to-blue-500 transition-shadow shadow-lg">
+        <button @click="handleRegister" class="flex items-center space-x-2 px-6 py-3 text-xl font-medium rounded-full bg-gradient-to-r from-purple-400 to-blue-400 hover:from-purple-500 hover:to-blue-500 transition-shadow shadow-lg">
           <span>COMMENCER GRATUITEMENT</span>
           <img src="~assets/icons/Right.svg" alt="Right-Icon" class="w-8 h-8" />
         </button>
@@ -63,7 +63,7 @@
             - ...<br />
             - ...<br />
           </p>
-          <button class="w-full py-3 text-xl font-medium rounded-full bg-gradient-to-r from-purple-400 to-blue-400 hover:from-purple-500 hover:to-blue-500 transition-shadow shadow-lg">
+          <button @click="handleRegister" class="w-full py-3 text-xl font-medium rounded-full bg-gradient-to-r from-purple-400 to-blue-400 hover:from-purple-500 hover:to-blue-500 transition-shadow shadow-lg">
             Start Now
           </button>
         </div>
@@ -79,7 +79,7 @@
             - ...<br />
             - ...<br />
           </p>
-          <button class="w-full py-3 text-xl font-medium rounded-full bg-white text-purple-400 hover:bg-gray-200 transition-all">
+          <button @click="handleRegister" class="w-full py-3 text-xl font-medium rounded-full bg-white text-purple-400 hover:bg-gray-200 transition-all">
             Order Now
           </button>
         </div>
@@ -95,7 +95,7 @@
             - ...<br />
             - ...<br />
           </p>
-          <button class="w-full py-3 text-xl font-medium rounded-full bg-gradient-to-r from-purple-400 to-blue-400 hover:from-purple-500 hover:to-blue-500 transition-shadow shadow-lg">
+          <button @click="handleRegister" class="w-full py-3 text-xl font-medium rounded-full bg-gradient-to-r from-purple-400 to-blue-400 hover:from-purple-500 hover:to-blue-500 transition-shadow shadow-lg">
             Order Now
           </button>
         </div>
@@ -110,6 +110,10 @@ import { onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import Cookies from "js-cookie";
 import {jwtDecode} from "jwt-decode";
+
+function handleRegister() {
+  router.push(`/register`);
+}
 
 const router = useRouter();
 
