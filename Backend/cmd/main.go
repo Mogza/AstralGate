@@ -66,6 +66,11 @@ func registerRoutes(router *mux.Router, h handler.Handler) {
 	routes.RegisterProductRoutes(apiRouter, h)
 	routes.RegisterTransactionRoutes(apiRouter, h)
 
+	// Api stats router setup
+	statsRouter := router.PathPrefix("/stats").Subrouter()
+	statsRouter.Use(middleware.JwtMiddleware)
+	routes.RegisterDashboardRoutes(statsRouter, h)
+
 	// Admin router setup
 	adminRouter := router.PathPrefix("/admin").Subrouter()
 	adminRouter.Use(middleware.AdminMiddleware)
