@@ -106,4 +106,28 @@
 
 <script setup lang="ts">
 import Header from '../components/Header.vue'
+import { onMounted } from 'vue';
+import { useRouter } from 'vue-router';
+import Cookies from "js-cookie";
+import {jwtDecode} from "jwt-decode";
+
+const router = useRouter();
+
+onMounted(() => {
+  const token = Cookies.get('auth_token')
+
+  if (token) {
+    try {
+      const decodedToken = jwtDecode(token) as { role: string };
+
+      if (decodedToken.role === 'admin') {
+        router.push('/admin/users');
+      } else if (decodedToken.role === 'user') {
+        router.push('/dashboard');
+      }
+    } catch (e) {
+      console.error('Error decoding token:', e);
+    }
+    }
+});
 </script>

@@ -12,8 +12,14 @@
   "dependencies": {
     "@nuxtjs/tailwindcss": "^6.12.2",
     "axios": "^1.7.7",
+    "js-cookie": "^3.0.5",
+    "jwt-decode": "^4.0.0",
     "nuxt": "^3.13.0",
     "vue": "latest",
+    "vue-jwt-decode": "^0.1.0",
     "vue-router": "latest"
+  },
+  "devDependencies": {
+    "@types/js-cookie": "^3.0.6"
   }
 }
