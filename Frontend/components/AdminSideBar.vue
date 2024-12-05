@@ -12,6 +12,11 @@
         {{ tab }}
       </li>
     </ul>
+    <div class="flex justify-center mt-10 relative z-10">
+      <button @click="disconnect" class="flex items-center mt-[30rem] space-x-2 px-6 py-3 text-lg font-medium rounded-full bg-red-700 hover:bg-red-800 transition-shadow shadow-lg">
+        <span>Se déconnecter</span>
+      </button>
+    </div>
   </div>
 </template>
 
@@ -29,7 +34,7 @@ const props = defineProps({
   },
 });
 
-const emits = defineEmits(["tab-changed"]);
+const emits = defineEmits(["tab-changed", "disconnect"]);
 
 const tabs = ["Users", "Products", "Transactions"];
 const tabIcons: Record<string, string> = {
@@ -40,5 +45,9 @@ const tabIcons: Record<string, string> = {
 
 function changeTab(tab: string) {
   emits("tab-changed", tab);
+}
+
+function disconnect() {
+  emits("disconnect");
 }
 </script>

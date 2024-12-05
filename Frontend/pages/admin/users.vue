@@ -1,7 +1,7 @@
 <template>
   <div class="bg-[#f4f3f2] flex h-screen">
     <!-- Sidebar -->
-    <AdminSideBar :current-tab=currentTab @tab-changed="handleTabChange" />
+    <AdminSideBar :current-tab=currentTab @tab-changed="handleTabChange" @disconnect="handleDisconnection"/>
 
     <!-- Page Content -->
     <div class="flex-1 flex flex-col">
@@ -53,6 +53,7 @@
 import { ref, onMounted } from "vue";
 import { useRouter } from 'vue-router';
 import axios from "axios";
+import Cookies from "js-cookie";
 
 interface User {
   id: number;
@@ -93,5 +94,10 @@ function handleTabChange(newTab: string) {
   currentTab.value = newTab.toLowerCase();
   console.log(`Tab changed to: ${newTab}`);
   router.push(`/admin/${newTab.toLowerCase()}`);
+}
+
+function handleDisconnection() {
+  Cookies.remove("auth_token");
+  router.push("/");
 }
 </script>
