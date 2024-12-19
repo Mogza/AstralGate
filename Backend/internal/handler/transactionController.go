@@ -8,9 +8,22 @@ import (
 	"github.com/Mogza/AstralGate/internal/utils"
 	"github.com/gorilla/mux"
 	"gorm.io/gorm"
+	"io"
 	"net/http"
+	"os"
 	"strconv"
+	"time"
 )
+
+type PolygonTXResult struct {
+	Hash  string `json:"hash"`
+	From  string `json:"from"`
+	Value string `json:"value"`
+}
+
+type PolygonTX struct {
+	Result []PolygonTXResult `json:"result"`
+}
 
 func (h Handler) GetAllTransactions(w http.ResponseWriter, _ *http.Request) {
 	// Retrieve all transactions
@@ -119,6 +132,82 @@ func (h Handler) UpdateTransaction(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	err = json.NewEncoder(w).Encode(transaction)
 	utils.LogFatal(err, "Error while encoding response")
+}
+
+func (h Handler) CheckPaidTransaction() {
+	// Retrieve all wallets where currency == POL
+	var wallets []models.Wallet
+	err := h.DB.Where("currency = ?", "POL").Find(&wallets).Error
+	if err != nil {
+		fmt.Println("[UpdateBalance] Error while retrieving all wallets: ", err)
+		return
+	}
+
+	// Count to respect calls per seconds of the api
+	count := 0
+
+	for _, wallet := range wallets {
+		count += 1
+
+		polygonScanToken := os.Getenv("POLYGONSCAN_TOKEN")
+
+		// Get Wallet onchain TX
+		polygonScanUrl := "https://api-amoy.polygonscan.com/api?module=account&action=txlist&address=" + wallet.CryptoAddress + "&tag=latest&apikey=" + polygonScanToken
+
+		// Creating request
+		req, err := http.NewRequest("GET", polygonScanUrl, nil)
+		if err != nil {
+			fmt.Println("checkPaidTransaction : Error while creating new request")
+			return
+		}
+
+		client := &http.Client{}
+		resp, err := client.Do(req)
+		if err != nil {
+			fmt.Println("chackPaidTransaction : Error while creating sending request")
+			return
+		}
+		defer func(Body io.ReadCloser) {
+			err := Body.Close()
+			if err != nil {
+				utils.LogFatal(err, "Error while closing the body")
+			}
+		}(resp.Body)
+
+		body, _ := io.ReadAll(resp.Body)
+		var tx PolygonTX
+		err = json.Unmarshal(body, &tx)
+		utils.LogFatal(err, "Error while unmarshalling response body")
+
+		for _, transaction := range tx.Result {
+			// Ensure this is not an already verify tx
+			var paidTX []models.Transaction
+			err = h.DB.Where("tx_hash = ?", transaction.Hash).First(&paidTX).Error
+			if err == nil {
+				continue
+			}
+
+			txValuePOL, err := strconv.ParseFloat(transaction.Value, 64)
+			if err != nil {
+				utils.LogFatal(err, "Error while converting value to float")
+			}
+			txValueWei := txValuePOL / 1e18
+
+			var pendingTX models.Transaction
+			err = h.DB.Where("client_address = ? AND amount = ? AND status = ?", transaction.From, txValueWei, "pending").First(&pendingTX).Error
+			if err == nil {
+				pendingTX.Status = "paid"
+				pendingTX.TxHash = transaction.Hash
+				h.DB.Save(pendingTX)
+			}
+		}
+
+		if count >= 5 {
+			count = 0
+			time.Sleep(1 * time.Second)
+		}
+	}
+
 }
 
 func (h Handler) DeleteTransaction(w http.ResponseWriter, r *http.Request) {

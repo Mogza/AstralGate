@@ -31,8 +31,10 @@ func main() {
 	registerRoutes(router, h)
 	han := c.Handler(router)
 
-	pollingTicker := time.NewTicker(30 * time.Second)
-	defer pollingTicker.Stop()
+	pollingTicker30 := time.NewTicker(30 * time.Second)
+	defer pollingTicker30.Stop()
+	pollingTicker5 := time.NewTicker(5 * time.Second)
+	defer pollingTicker5.Stop()
 
 	// Goroutine : Listen and Serve
 	go func() {
@@ -41,12 +43,22 @@ func main() {
 		utils.LogFatal(err, "Error starting server")
 	}()
 
-	// Goroutine : Polling functions
+	// Goroutine : Polling functions 30sec
 	go func() {
 		for {
 			select {
-			case <-pollingTicker.C:
+			case <-pollingTicker30.C:
 				h.UpdateBalance()
+			}
+		}
+	}()
+
+	// Goroutine : Polling functions 5sec
+	go func() {
+		for {
+			select {
+			case <-pollingTicker5.C:
+				h.CheckPaidTransaction()
 			}
 		}
 	}()
