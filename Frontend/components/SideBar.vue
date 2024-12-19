@@ -13,7 +13,7 @@
       </li>
     </ul>
     <div class="flex justify-center mt-10 relative z-10">
-      <button class="flex items-center mt-[30rem] space-x-2 px-6 py-3 text-lg font-medium rounded-full bg-white/5 hover:bg-white/10 transition-shadow shadow-lg">
+      <button @click="settings" class="flex items-center mt-[30rem] space-x-2 px-6 py-3 text-lg font-medium rounded-full bg-white/5 hover:bg-white/10 transition-shadow shadow-lg">
         <span>Settings</span>
       </button>
     </div>
@@ -25,6 +25,7 @@ import { defineProps, defineEmits } from "vue";
 
 import ProductsIcon from "../assets/icons/Products.svg";
 import DashboardIcon from "../assets/icons/Receipt.svg";
+import {useRouter} from "#vue-router";
 
 const props = defineProps({
   currentTab: {
@@ -43,5 +44,10 @@ const tabIcons: Record<string, string> = {
 
 function changeTab(tab: string) {
   emits("tab-changed", tab);
+}
+
+const router = useRouter();
+function settings() {
+  router.push("/merchants/settings");
 }
 </script>

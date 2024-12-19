@@ -166,6 +166,7 @@ const activityOptions = computed(() => {
   }
   return {
     chart: {
+      backgroundColor: '#f4f3f2',
       type: 'column'
     },
     title: {
@@ -243,6 +244,7 @@ const itemsSoldOptions = computed(() => {
   }
   return {
     chart: {
+      backgroundColor: '#f4f3f2',
       type: 'pie',
       custom: {},
       events: {
