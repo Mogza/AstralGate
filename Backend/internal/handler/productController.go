@@ -65,6 +65,7 @@ func (h Handler) CreateProducts(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	fmt.Println(r.Form)
 	// Parse the form
 	err := r.ParseMultipartForm(10 << 20) // 10MB limit
 	if err != nil {
@@ -72,12 +73,12 @@ func (h Handler) CreateProducts(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	fmt.Println("After")
+	fmt.Println(r.Form)
+
 	// Extract from the form
 	file, _, err := r.FormFile("image")
 	if err != nil {
-		fmt.Println(err)
-		testname, _, _ := r.FormFile("title")
-		fmt.Println("test", testname)
 		http.Error(w, "Failed to get image from request", http.StatusBadRequest)
 		return
 	}
