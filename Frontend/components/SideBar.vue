@@ -25,6 +25,7 @@ import { defineProps, defineEmits } from "vue";
 
 import ProductsIcon from "../assets/icons/Products.svg";
 import DashboardIcon from "../assets/icons/Receipt.svg";
+import TransactionIcon from "../assets/icons/Transactions.svg";
 import {useRouter} from "#vue-router";
 
 const props = defineProps({
@@ -36,10 +37,11 @@ const props = defineProps({
 
 const emits = defineEmits(["tab-changed"]);
 
-const tabs = ["Dashboard", "Products"];
+const tabs = ["Dashboard", "Products", "Transactions"];
 const tabIcons: Record<string, string> = {
   Dashboard: DashboardIcon,
   Products: ProductsIcon,
+  Transactions: TransactionIcon
 };
 
 function changeTab(tab: string) {

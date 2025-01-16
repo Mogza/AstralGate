@@ -256,9 +256,17 @@ func (h Handler) GetUserTransactionMe(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Retrieve user wallet
+	var userWallet models.Wallet
+	err := h.DB.Where("user_id = ?", userID).First(&userWallet).Error
+	if err != nil {
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+
 	// Retrieve user transactions
 	var transactions []models.Transaction
-	err := h.DB.Where("user_id = ?", userID).Find(&transactions).Error
+	err = h.DB.Where("wallet_id = ?", userWallet.Id).Find(&transactions).Error
 	if err != nil {
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
