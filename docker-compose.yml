@@ -32,6 +32,7 @@ services:
       - db
     volumes:
       - ${PATH_TO_KEYSTORES}:/app/keystores
+      - ${PATH_TO_IMAGES}:/app/images
 
   frontend:
     build:

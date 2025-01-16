@@ -8,7 +8,9 @@ import (
 	"github.com/Mogza/AstralGate/internal/utils"
 	"github.com/gorilla/mux"
 	"gorm.io/gorm"
+	"io"
 	"net/http"
+	"os"
 	"strconv"
 )
 
@@ -63,11 +65,28 @@ func (h Handler) CreateProducts(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Decode body request
-	var req ProductBodyCreation
-	err := json.NewDecoder(r.Body).Decode(&req)
+	// Parse the form
+	err := r.ParseMultipartForm(10 << 20) // 10MB limit
 	if err != nil {
-		http.Error(w, "Invalid request payload", http.StatusBadRequest)
+		http.Error(w, "Failed to parse multipart form", http.StatusBadRequest)
+		return
+	}
+
+	// Extract from the form
+	file, _, err := r.FormFile("image")
+	if err != nil {
+		http.Error(w, "Failed to get image from request", http.StatusBadRequest)
+		return
+	}
+	defer file.Close()
+
+	// Decode from the form
+	var req ProductBodyCreation
+	req.Title = r.FormValue("title")
+	req.Description = r.FormValue("description")
+	req.UsdPrice, err = strconv.ParseFloat(r.FormValue("usd_price"), 64)
+	if err != nil {
+		http.Error(w, "Invalid price value", http.StatusBadRequest)
 		return
 	}
 
@@ -90,6 +109,21 @@ func (h Handler) CreateProducts(w http.ResponseWriter, r *http.Request) {
 	err = h.DB.Create(&product).Error
 	if err != nil {
 		http.Error(w, "Failed to product user", http.StatusInternalServerError)
+		return
+	}
+
+	// Save image
+	imagePath := fmt.Sprintf("/app/images/%d.jpg", product.Id)
+	out, err := os.Create(imagePath)
+	if err != nil {
+		http.Error(w, "Failed to save image", http.StatusInternalServerError)
+		return
+	}
+	defer out.Close()
+
+	_, err = io.Copy(out, file)
+	if err != nil {
+		http.Error(w, "Failed to save image", http.StatusInternalServerError)
 		return
 	}
 
