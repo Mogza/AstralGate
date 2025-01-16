@@ -63,9 +63,26 @@
                     class="bg-transparent text-black/70 text-xl outline-none w-[1465px]"
                 />
               </div>
+              <!-- Drag and Drop image -->
+              <p class="text-black/70 font-bold">Product Image</p>
+              <div
+                  class="w-full h-32 bg-[#f4f3f2] rounded-[10px] shadow-lg border-2 border-dashed border-[#404040] mb-4 flex items-center justify-center"
+                  @drop.prevent="handleFileDrop"
+                  @dragover.prevent
+              >
+                <input type="file" @change="handleFileSelect" ref="fileInput" class="hidden" />
+                <div @click="triggerFileSelect" class="cursor-pointer text-black/70">
+                  Drag and drop an image here or click to select a file
+                </div>
+              </div>
+              <!-- Image Preview -->
+              <div v-if="imagePreview" class="mt-4">
+                <p class="text-black/70 font-bold">Image Preview:</p>
+                <img :src="imagePreview" alt="Image Preview" class="w-1/12 h-auto rounded-lg shadow-lg mt-2" />
+              </div>
               <!-- Submit Field -->
-              <button type=submit class="flex items-center w-[191px] px-6 py-3 text-xl mt-12 font-bold rounded-full bg-gradient-to-br from-purple-400 to-blue-400 hover:from-purple-500 hover:to-blue-500 transition-shadow shadow-lg">
-                <span>Créer le compte</span>
+              <button type=submit class="flex items-center w-[165px] px-6 py-3 text-xl mt-12 font-bold rounded-full bg-gradient-to-br from-purple-400 to-blue-400 hover:from-purple-500 hover:to-blue-500 transition-shadow shadow-lg">
+                <span>Créer l'objet</span>
               </button>
             </form>
           </div>
@@ -80,6 +97,7 @@
 import { useRouter } from 'vue-router';
 import axios from "axios";
 import Cookies from "js-cookie";
+import { ref } from 'vue';
 
 let createProductForm = {
   title: '',
@@ -89,18 +107,59 @@ let createProductForm = {
 
 const router = useRouter();
 const token = Cookies.get("auth_token")
+const fileInput = ref<File | null>(null);
+const imagePreview = ref<string | null>(null);
+
+const handleFileSelect = (event: Event) => {
+  const files = (event.target as HTMLInputElement).files;
+  if (files && files[0]) {
+    fileInput.value = files[0];
+    generateImagePreview(files[0]);
+  }
+};
+
+const handleFileDrop = (event: DragEvent) => {
+  const files = event.dataTransfer?.files;
+  if (files && files[0]) {
+    fileInput.value = files[0];
+    generateImagePreview(files[0]);
+  }
+};
+
+const triggerFileSelect = () => {
+  document.querySelector<HTMLInputElement>('input[type="file"]')?.click();
+};
+
+const generateImagePreview = (file: File) => {
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    imagePreview.value = e.target?.result as string;
+  };
+  reader.readAsDataURL(file);
+};
+
 const createProductSubmit = async () => {
   createProductForm.usd_price = Number(createProductForm.usd_price);
+
+  const formData = new FormData();
+  formData.append('title', createProductForm.title);
+  formData.append('description', createProductForm.description);
+  formData.append('usd_price', createProductForm.usd_price.toString());
+  if (fileInput.value) {
+    formData.append('image', fileInput.value);
+  }
+
   try {
-    await axios.post("http://185.157.245.42:8080/api/products/", createProductForm,  {
+    await axios.post('http://185.157.245.42:8080/api/products/', formData, {
       headers: {
         Authorization: `Bearer ${token}`,
+        'Content-Type': 'multipart/form-data',
       },
     });
+    await router.push('/merchants/products');
   } catch (error) {
     console.error(error);
   }
-  await router.push("/merchants/products")
 }
 
 function back() {
