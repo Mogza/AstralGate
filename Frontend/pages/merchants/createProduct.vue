@@ -152,8 +152,7 @@ const createProductSubmit = async () => {
   try {
     await axios.post('http://185.157.245.42:8080/api/products/', formData, {
       headers: {
-        Authorization: `Bearer ${token}`,
-        'Content-Type': 'multipart/form-data',
+        Authorization: `Bearer ${token}`
       },
     });
     await router.push('/merchants/products');
