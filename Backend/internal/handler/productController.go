@@ -65,30 +65,27 @@ func (h Handler) CreateProducts(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fmt.Println(r.Form)
 	// Parse the form
-	err := r.ParseMultipartForm(10 << 20) // 10MB limit
+	err := r.ParseMultipartForm(10 << 20)
 	if err != nil {
 		http.Error(w, "Failed to parse multipart form", http.StatusBadRequest)
 		return
 	}
 
-	fmt.Println("After")
-	fmt.Println(r.Form)
-
 	// Extract from the form
-	file, _, err := r.FormFile("image")
+	rawFile := r.Form["image"][0]
+	file, err := os.Open(rawFile)
 	if err != nil {
-		http.Error(w, "Failed to get image from request", http.StatusBadRequest)
+		http.Error(w, "Failed to open image file", http.StatusBadRequest)
 		return
 	}
 	defer file.Close()
 
 	// Decode from the form
 	var req ProductBodyCreation
-	req.Title = r.FormValue("title")
-	req.Description = r.FormValue("description")
-	req.UsdPrice, err = strconv.ParseFloat(r.FormValue("usd_price"), 64)
+	req.Title = r.Form["title"][0]
+	req.Description = r.Form["description"][0]
+	req.UsdPrice, err = strconv.ParseFloat(r.Form["usd_price"][0], 64)
 	if err != nil {
 		http.Error(w, "Invalid price value", http.StatusBadRequest)
 		return
