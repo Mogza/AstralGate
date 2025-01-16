@@ -76,6 +76,7 @@ func (h Handler) CreateProducts(w http.ResponseWriter, r *http.Request) {
 	file, _, err := r.FormFile("image")
 	if err != nil {
 		fmt.Println(err)
+		fmt.Println("Received file:", file)
 		http.Error(w, "Failed to get image from request", http.StatusBadRequest)
 		return
 	}
