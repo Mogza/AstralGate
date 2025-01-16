@@ -36,9 +36,9 @@
               >
                 <td class="border border-gray-300 px-4 py-2">{{ transaction.client_address }}</td>
                 <td class="border border-gray-300 px-4 py-2">{{ transaction.amount }}</td>
-                <td class="border border-gray-300 px-4 py-2">{{ transaction.currency }}$</td>
-                <td class="border border-gray-300 px-4 py-2">{{ transaction.status }}$</td>
-                <td class="border border-gray-300 px-4 py-2">{{ transaction.tx_hash }}$</td>
+                <td class="border border-gray-300 px-4 py-2">{{ transaction.currency }}</td>
+                <td class="border border-gray-300 px-4 py-2">{{ transaction.status }}</td>
+                <td class="border border-gray-300 px-4 py-2">{{ transaction.tx_hash }}</td>
               </tr>
               </tbody>
             </table>
