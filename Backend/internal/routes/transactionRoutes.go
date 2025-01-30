@@ -7,6 +7,7 @@ import (
 
 func RegisterTransactionRoutes(router *mux.Router, h handler.Handler) {
 	router.HandleFunc("/transaction/{transaction_id}", h.GetTransactionById).Methods("GET")
+	router.HandleFunc("/transactions/export", h.ExportUserTransactions).Methods("GET")
 	router.HandleFunc("/transaction/POL/", h.CreatePOLTransactions).Methods("POST")
 	router.HandleFunc("/transaction/{transaction_id}", h.UpdateTransaction).Methods("PUT")
 }

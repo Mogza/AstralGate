@@ -46,6 +46,11 @@
         </div>
       </div>
 
+      <!-- Export Button -->
+      <button @click="exportTransactions" class="items-center ml-[1300px] w-60 px-6 py-3 text-xl text-white font-bold rounded-full bg-gradient-to-br from-purple-400 to-blue-400 hover:from-purple-500 hover:to-blue-500 transition-shadow shadow-lg">
+        <span>Export your transactions in .csv</span>
+      </button>
+
     </div>
   </div>
 </template>
@@ -98,6 +103,18 @@ function handleTabChange(newTab: string) {
 function handleDisconnection() {
   Cookies.remove("auth_token");
   router.push("/");
+}
+
+async function exportTransactions() {
+  try {
+    const response = await axios.get("http://185.157.245.42:8080/transactions/export", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+  } catch (error) {
+    console.error("Error fetching transactions:", error);
+  }
 }
 
 </script>

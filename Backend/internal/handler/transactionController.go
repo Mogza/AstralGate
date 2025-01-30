@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"encoding/csv"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -208,6 +209,75 @@ func (h Handler) CheckPaidTransaction() {
 		}
 	}
 
+}
+
+func (h Handler) ExportUserTransactions(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	userID, ok := ctx.Value("user_id").(int)
+	if !ok {
+		http.Error(w, "User ID not found in context", http.StatusUnauthorized)
+		return
+	}
+
+	// Retrieve user wallet
+	var userWallet models.Wallet
+	err := h.DB.Where("user_id = ?", userID).First(&userWallet).Error
+	if err != nil {
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+
+	// Retrieve user transactions
+	var transactions []models.Transaction
+	err = h.DB.Where("wallet_id = ?", userWallet.Id).Find(&transactions).Error
+	if err != nil {
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+
+	// Set headers for CSV download
+	w.Header().Set("Content-Type", "text/csv")
+	w.Header().Set("Content-Disposition", "attachment;filename=transactions.csv")
+
+	// Create CSV writer
+	writer := csv.NewWriter(w)
+	defer writer.Flush()
+
+	// Write header
+	header := []string{
+		"Transaction ID",
+		"Product ID",
+		"Client Address",
+		"Amount",
+		"Currency",
+		"Status",
+		"Transaction Hash",
+		"Created At",
+		"Updated At",
+	}
+	if err := writer.Write(header); err != nil {
+		http.Error(w, "Error writing CSV header", http.StatusInternalServerError)
+		return
+	}
+
+	// Write transactions
+	for _, tx := range transactions {
+		record := []string{
+			strconv.FormatInt(tx.Id, 10),
+			strconv.FormatInt(tx.ProductId, 10),
+			tx.ClientAddress,
+			strconv.FormatFloat(tx.Amount, 'f', 8, 64),
+			tx.Currency,
+			tx.Status,
+			tx.TxHash,
+			tx.CreatedAt.Format(time.RFC3339),
+			tx.UpdatedAt.Format(time.RFC3339),
+		}
+		if err := writer.Write(record); err != nil {
+			http.Error(w, "Error writing CSV record", http.StatusInternalServerError)
+			return
+		}
+	}
 }
 
 func (h Handler) DeleteTransaction(w http.ResponseWriter, r *http.Request) {
