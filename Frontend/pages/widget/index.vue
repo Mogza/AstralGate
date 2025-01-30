@@ -57,7 +57,7 @@ const status = ref({ type: '', message: '' });
 
 const handleSubmit = async () => {
   try {
-    const response = await $fetch('http://185.157.245.42:8080/transaction/POL/', {
+    const response = await $fetch('http://185.157.245.42:8080/api/transaction/POL/', {
       method: 'POST',
       body: {
         product_id: productId,
