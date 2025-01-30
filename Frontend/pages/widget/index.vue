@@ -41,7 +41,7 @@
                 :disabled="isLoading"
                 class="w-full py-2 px-4 bg-gradient-to-r from-purple-400 to-blue-400 text-white font-medium rounded-lg hover:from-purple-500 hover:to-blue-500 transition-all duration-200 disabled:opacity-50"
             >
-              {{ isLoading ? 'Processing...' : 'Submit Transaction' }}
+              {{ isLoading ? 'Processing...' : 'Pay' }}
             </button>
           </form>
         </div>
