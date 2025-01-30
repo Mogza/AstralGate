@@ -139,25 +139,47 @@ const generateImagePreview = (file: File) => {
 };
 
 const createProductSubmit = async () => {
-  createProductForm.usd_price = Number(createProductForm.usd_price);
-
-  const formData = new FormData();
-  formData.append('title', createProductForm.title);
-  formData.append('description', createProductForm.description);
-  formData.append('usd_price', createProductForm.usd_price.toString());
-  if (fileInput.value) {
-    formData.append('image', fileInput.value);
-  }
-
   try {
-    await axios.post('http://185.157.245.42:8080/api/products/', formData, {
+    // Validate form data
+    if (!createProductForm.title || !createProductForm.description || !createProductForm.usd_price) {
+      alert('Please fill in all fields');
+      return;
+    }
+
+    if (!fileInput.value) {
+      alert('Please select an image');
+      return;
+    }
+
+    // Validate image type
+    const validTypes = ['image/jpeg', 'image/jpg', 'image/png'];
+    if (!validTypes.includes(fileInput.value.type)) {
+      alert('Please select a valid image file (JPG, JPEG, or PNG)');
+      return;
+    }
+
+    createProductForm.usd_price = Number(createProductForm.usd_price);
+
+    const formData = new FormData();
+    formData.append('title', createProductForm.title);
+    formData.append('description', createProductForm.description);
+    formData.append('usd_price', createProductForm.usd_price.toString());
+    formData.append('image', fileInput.value);
+
+    const response = await axios.post('http://185.157.245.42:8080/api/products/', formData, {
       headers: {
-        Authorization: `Bearer ${token}`
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'multipart/form-data',
       },
     });
-    await router.push('/merchants/products');
-  } catch (error) {
-    console.error(error);
+
+    if (response.data && response.data.product) {
+      await router.push('/merchants/products');
+    }
+  } catch (error: any) {
+    const errorMessage = error.response?.data || 'An error occurred while creating the product';
+    alert(errorMessage);
+    console.error('Error creating product:', error);
   }
 }
 

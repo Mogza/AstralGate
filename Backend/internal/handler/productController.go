@@ -11,7 +11,9 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"path/filepath"
 	"strconv"
+	"time"
 )
 
 // ProductBodyCreation : Requested body for product creation
@@ -65,27 +67,32 @@ func (h Handler) CreateProducts(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Parse the form
-	err := r.ParseMultipartForm(10 << 20)
+	// Parse the form with a larger size limit for images
+	err := r.ParseMultipartForm(32 << 20) // 32MB limit
 	if err != nil {
 		http.Error(w, "Failed to parse multipart form", http.StatusBadRequest)
 		return
 	}
 
 	// Extract from the form
-	rawFile := r.Form["image"][0]
-	file, err := os.Open(rawFile)
+	file, fileHeader, err := r.FormFile("image")
 	if err != nil {
-		http.Error(w, "Failed to open image file", http.StatusBadRequest)
+		http.Error(w, "Failed to get image from request: "+err.Error(), http.StatusBadRequest)
 		return
 	}
 	defer file.Close()
 
+	// Validate file type
+	if !isValidImageType(fileHeader.Header.Get("Content-Type")) {
+		http.Error(w, "Invalid file type. Only jpg, jpeg, and png are allowed", http.StatusBadRequest)
+		return
+	}
+
 	// Decode from the form
 	var req ProductBodyCreation
-	req.Title = r.Form["title"][0]
-	req.Description = r.Form["description"][0]
-	req.UsdPrice, err = strconv.ParseFloat(r.Form["usd_price"][0], 64)
+	req.Title = r.FormValue("title")
+	req.Description = r.FormValue("description")
+	req.UsdPrice, err = strconv.ParseFloat(r.FormValue("usd_price"), 64)
 	if err != nil {
 		http.Error(w, "Invalid price value", http.StatusBadRequest)
 		return
@@ -99,39 +106,67 @@ func (h Handler) CreateProducts(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Create image directory if it doesn't exist
+	imageDirPath := "images"
+	if err := os.MkdirAll(imageDirPath, 0755); err != nil {
+		http.Error(w, "Failed to create image directory", http.StatusInternalServerError)
+		return
+	}
+
+	// Generate unique filename using UUID
+	fileExt := filepath.Ext(fileHeader.Filename)
+	imageFileName := fmt.Sprintf("%d_%s%s", time.Now().Unix(), int64(userID), fileExt)
+	imagePath := filepath.Join(imageDirPath, imageFileName)
+
+	// Create Product with image path
 	product := models.Products{
 		UserId:      int64(userID),
 		Title:       req.Title,
 		Description: req.Description,
 		UsdPrice:    req.UsdPrice,
+		ImagePath:   imagePath, // Add this field to your Products model
 	}
 
-	// Create Product
+	// Create Product in DB
 	err = h.DB.Create(&product).Error
 	if err != nil {
-		http.Error(w, "Failed to product user", http.StatusInternalServerError)
+		http.Error(w, "Failed to create product: "+err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	// Save image
-	imagePath := fmt.Sprintf("/app/images/%d.jpg", product.Id)
+	// Save image file
 	out, err := os.Create(imagePath)
 	if err != nil {
-		http.Error(w, "Failed to save image", http.StatusInternalServerError)
+		http.Error(w, "Failed to create image file: "+err.Error(), http.StatusInternalServerError)
 		return
 	}
 	defer out.Close()
 
 	_, err = io.Copy(out, file)
 	if err != nil {
-		http.Error(w, "Failed to save image", http.StatusInternalServerError)
+		http.Error(w, "Failed to save image: "+err.Error(), http.StatusInternalServerError)
 		return
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	_, err = fmt.Fprintf(w, "{\"ok\":\"product successfully created\"}")
-	utils.LogFatal(err, "Fprintf failed")
+	w.WriteHeader(http.StatusCreated)
+	err = json.NewEncoder(w).Encode(map[string]interface{}{
+		"message": "product successfully created",
+		"product": product,
+	})
+	if err != nil {
+		utils.LogFatal(err, "Error while encoding response")
+	}
+}
+
+// Helper function to validate image types
+func isValidImageType(contentType string) bool {
+	validTypes := map[string]bool{
+		"image/jpeg": true,
+		"image/jpg":  true,
+		"image/png":  true,
+	}
+	return validTypes[contentType]
 }
 
 func (h Handler) UpdateProduct(w http.ResponseWriter, r *http.Request) {

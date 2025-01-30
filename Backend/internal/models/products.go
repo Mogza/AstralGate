@@ -10,4 +10,5 @@ type Products struct {
 	UsdPrice    float64   `json:"usd_price"`
 	CreatedAt   time.Time `json:"created_at"`
 	UpdatedAt   time.Time `json:"updated_at"`
+	ImagePath   string    `json:"image_path"`
 }
