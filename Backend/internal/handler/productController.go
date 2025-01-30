@@ -113,9 +113,10 @@ func (h Handler) CreateProducts(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Generate unique filename using UUID
+	// Generate unique filename
+	timestamp := time.Now().Unix()
 	fileExt := filepath.Ext(fileHeader.Filename)
-	imageFileName := fmt.Sprintf("%d_%s%s", time.Now().Unix(), int64(userID), fileExt)
+	imageFileName := fmt.Sprintf("%d_%d%s", timestamp, userID, fileExt)
 	imagePath := filepath.Join(imageDirPath, imageFileName)
 
 	// Create Product with image path
@@ -124,7 +125,7 @@ func (h Handler) CreateProducts(w http.ResponseWriter, r *http.Request) {
 		Title:       req.Title,
 		Description: req.Description,
 		UsdPrice:    req.UsdPrice,
-		ImagePath:   imagePath, // Add this field to your Products model
+		ImagePath:   imageFileName, // Store just the filename
 	}
 
 	// Create Product in DB
@@ -159,7 +160,6 @@ func (h Handler) CreateProducts(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// Helper function to validate image types
 func isValidImageType(contentType string) bool {
 	validTypes := map[string]bool{
 		"image/jpeg": true,

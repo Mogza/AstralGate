@@ -21,6 +21,7 @@
             <table class="table-auto w-full border-collapse border border-gray-300">
               <thead>
               <tr class="bg-gradient-to-r from-purple-400 to-blue-400 text-white">
+                <th class="border border-gray-300 px-4 py-2 w-32">Image</th>
                 <th class="border border-gray-300 px-4 py-2">Title</th>
                 <th class="border border-gray-300 px-4 py-2">Description</th>
                 <th class="border border-gray-300 px-4 py-2">Price</th>
@@ -32,6 +33,16 @@
                   :key="product.id"
                   class="text-center odd:bg-gray-100 even:bg-gray-200"
               >
+                <td class="border border-gray-300 px-4 py-2">
+                  <div class="flex justify-center items-center h-24">
+                    <img
+                        :src="getImageUrl(product.image_path)"
+                        :alt="product.title"
+                        class="max-h-20 max-w-20 object-contain rounded-lg"
+                        @error="handleImageError"
+                    />
+                  </div>
+                </td>
                 <td class="border border-gray-300 px-4 py-2">{{ product.title }}</td>
                 <td class="border border-gray-300 px-4 py-2">{{ product.description }}</td>
                 <td class="border border-gray-300 px-4 py-2">{{ product.usd_price }}$</td>
@@ -62,15 +73,18 @@ interface Product {
   title: string;
   description: string;
   usd_price: number;
+  image_path: string;
 }
 
 const router = useRouter();
-const token = Cookies.get("auth_token")
+const token = Cookies.get("auth_token");
+const API_BASE_URL = "http://185.157.245.42:8080";
+const PLACEHOLDER_IMAGE = `${API_BASE_URL}/images/placeholder-image.jpg`;
 
 const products = ref<Product[]>([]);
 async function fetchProducts() {
   try {
-    const response = await axios.get("http://185.157.245.42:8080/api/users/products/me", {
+    const response = await axios.get(`${API_BASE_URL}/api/users/products/me`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -81,6 +95,20 @@ async function fetchProducts() {
   }
 }
 
+function getImageUrl(imagePath: string | null): string {
+  if (!imagePath) return `${API_BASE_URL}/images/placeholder-image.jpg`;
+
+  // Clean up the image path to ensure it's just the filename
+  const filename = imagePath.split('/').pop();
+  if (!filename) return `${API_BASE_URL}/images/placeholder-image.jpg`;
+
+  return `${API_BASE_URL}/images/${filename}`;
+}
+
+function handleImageError(event: Event) {
+  const img = event.target as HTMLImageElement;
+  img.src = `${API_BASE_URL}/images/placeholder-image.jpg`;
+}
 
 onMounted(() => {
   fetchProducts();
@@ -100,6 +128,6 @@ function handleDisconnection() {
 }
 
 function createProduct() {
-  router.push("/merchants/createProduct")
+  router.push("/merchants/createProduct");
 }
 </script>
