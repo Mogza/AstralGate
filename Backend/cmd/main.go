@@ -28,6 +28,10 @@ func main() {
 
 	// Router creation
 	router := mux.NewRouter()
+
+	// Serve static files from the images directory
+	router.PathPrefix("/images/").Handler(http.StripPrefix("/images/", http.FileServer(http.Dir("images"))))
+
 	registerRoutes(router, h)
 	han := c.Handler(router)
 
