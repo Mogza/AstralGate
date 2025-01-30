@@ -7,7 +7,7 @@
           <!-- Title -->
           <h2 class="text-2xl font-bold text-center mb-6">
             <span class="text-transparent bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text">
-              Initialize Transaction
+              AstralGate
             </span>
           </h2>
 
