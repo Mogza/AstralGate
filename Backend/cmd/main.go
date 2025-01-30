@@ -73,6 +73,7 @@ func main() {
 func registerRoutes(router *mux.Router, h handler.Handler) {
 	// Login router setup
 	routes.RegisterAuthRoutes(router, h)
+	routes.RegisterPublicTransactionRoutes(router, h)
 
 	// Api router setup
 	apiRouter := router.PathPrefix("/api").Subrouter()

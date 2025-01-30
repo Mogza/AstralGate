@@ -63,13 +63,6 @@ func (h Handler) GetTransactionById(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h Handler) CreatePOLTransactions(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	userID, ok := ctx.Value("user_id").(int)
-	if !ok {
-		http.Error(w, "User ID not found in context", http.StatusUnauthorized)
-		return
-	}
-
 	// Decode body request
 	var newTx models.Transaction
 	err := json.NewDecoder(r.Body).Decode(&newTx)
@@ -78,8 +71,21 @@ func (h Handler) CreatePOLTransactions(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// First get the product to retrieve user_id
+	var product models.Products
+	err = h.DB.First(&product, newTx.ProductId).Error
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			http.Error(w, "Product not found", http.StatusNotFound)
+		} else {
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		}
+		return
+	}
+
+	// Then get the wallet using the product's user_id
 	var wallets models.Wallet
-	err = h.DB.Where("user_id = ? AND currency = ?", userID, "POL").Find(&wallets).Error
+	err = h.DB.Where("user_id = ? AND currency = ?", product.UserId, "POL").Find(&wallets).Error
 	if err != nil {
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return

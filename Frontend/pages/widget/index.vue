@@ -55,7 +55,6 @@ import Cookies from "js-cookie";
 
 const route = useRoute();
 const clientAddress = ref('');
-const token = Cookies.get("auth_token")
 const status = ref({ type: '', message: '' });
 const isLoading = ref(false);
 
@@ -75,15 +74,12 @@ const handleSubmit = async () => {
   status.value = { type: '', message: '' };
 
   try {
-    const response = await $fetch('http://185.157.245.42:8080/api/transaction/POL/', {
+    const response = await $fetch('http://185.157.245.42:8080/transaction/POL/', {
       method: 'POST',
       body: {
         product_id: productId,
         client_address: clientAddress.value
       },
-      headers: {
-        Authorization: `Bearer ${token}`
-      }
     });
 
     status.value = {
