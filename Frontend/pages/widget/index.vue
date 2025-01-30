@@ -38,9 +38,10 @@
 
             <button
                 type="submit"
-                class="w-full py-2 px-4 bg-gradient-to-r from-purple-400 to-blue-400 text-white font-medium rounded-lg hover:from-purple-500 hover:to-blue-500 transition-all duration-200"
+                :disabled="isLoading"
+                class="w-full py-2 px-4 bg-gradient-to-r from-purple-400 to-blue-400 text-white font-medium rounded-lg hover:from-purple-500 hover:to-blue-500 transition-all duration-200 disabled:opacity-50"
             >
-              Submit Transaction
+              {{ isLoading ? 'Processing...' : 'Submit Transaction' }}
             </button>
           </form>
         </div>
@@ -50,33 +51,55 @@
 </template>
 
 <script setup>
+import Cookies from "js-cookie";
+
 const route = useRoute();
-const productId = route.query.product_id;
 const clientAddress = ref('');
+const token = Cookies.get("auth_token")
 const status = ref({ type: '', message: '' });
+const isLoading = ref(false);
+
+// Parse product_id as integer
+const productId = parseInt(route.query.product_id, 10);
 
 const handleSubmit = async () => {
+  if (!productId || isNaN(productId)) {
+    status.value = {
+      type: 'error',
+      message: 'Invalid Product ID'
+    };
+    return;
+  }
+
+  isLoading.value = true;
+  status.value = { type: '', message: '' };
+
   try {
     const response = await $fetch('http://185.157.245.42:8080/api/transaction/POL/', {
       method: 'POST',
       body: {
         product_id: productId,
         client_address: clientAddress.value
+      },
+      headers: {
+        Authorization: `Bearer ${token}`
       }
     });
 
     status.value = {
       type: 'success',
-      message: 'Transaction initiated successfully!'
+      message: `Transaction initiated!`
     };
     clientAddress.value = '';
 
   } catch (error) {
+    console.error('Transaction error:', error);
     status.value = {
       type: 'error',
       message: 'Failed to initiate transaction. Please try again.'
     };
-    console.error('Transaction error:', error);
+  } finally {
+    isLoading.value = false;
   }
 };
 </script>
