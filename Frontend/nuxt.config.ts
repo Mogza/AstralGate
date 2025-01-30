@@ -17,6 +17,19 @@ export default defineNuxtConfig({
       ],
     },
   },
+  nitro: {
+    routeRules: {
+      '/widget': {
+        cors: true,
+        headers: {
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+          'Access-Control-Allow-Headers': 'Origin, Content-Type, Accept',
+          'Access-Control-Allow-Credentials': 'true'
+        }
+      }
+    }
+  },
 
   css: [
     '@/assets/css/main.css'

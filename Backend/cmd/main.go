@@ -73,6 +73,7 @@ func registerRoutes(router *mux.Router, h handler.Handler) {
 	// Api router setup
 	apiRouter := router.PathPrefix("/api").Subrouter()
 	apiRouter.Use(middleware.JwtMiddleware)
+	apiRouter.Use(middleware.CORS)
 	routes.RegisterUserRoutes(apiRouter, h)
 	routes.RegisterWalletRoutes(apiRouter, h)
 	routes.RegisterProductRoutes(apiRouter, h)
