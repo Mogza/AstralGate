@@ -18,10 +18,9 @@ As part of the "Simulated professional work" in the third year at Epitech. I dec
 - [x] Milestone 2: Authentication and management of hot wallets
 - [x] Milestone 3: Landing Page
 - [x] Milestone 4: Transactions & Admin Dashboard
-- [ ] Milestone 5: Blockchain integration, payment confirmation and payment interface
-- [ ] Milestone 6: Cash withdrawal system and wallet security
-- [ ] Milestone 7: Transaction history and reports
-- [ ] Mielstone 8: Testing, optimization, documentation and deployment
+- [X] Milestone 5: Blockchain integration, payment confirmation and payment interface
+- [x] Milestone 7: Transaction history and reports
+- [x] Mielstone 8: Testing, optimization, documentation and deployment
 
 ## Build
 Launch using docker compose
